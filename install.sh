@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================
-#  OpenClaw WSL2 Ubuntu 一键部署脚本 (最终版)
+#  OpenClaw WSL2 Ubuntu 一键部署脚本 (最终加速版)
 #  安装版本：v2026.3.28（如需修复 UI 问题，可升级至 2026.3.31）
 #  baseUrl 固定：https://api-aigw.corp.hongsong.club/v1
 #  用户只需提供：API Key、Model ID、飞书 AppID/Secret
@@ -22,7 +22,7 @@ warn()    { echo -e "${YELLOW}[⚠️  WARN]${RESET} $*"; }
 error()   { echo -e "${RED}[❌ ERR]${RESET}  $*"; exit 1; }
 step()    { echo -e "\n${BOLD}${CYAN}━━━ $1 ━━━${RESET}"; }
 
-# JSON 转义函数（处理双引号、反斜杠、控制字符）
+# JSON 转义函数
 json_escape() {
     local s="$1"
     s="${s//\\/\\\\}"
@@ -58,7 +58,7 @@ cat << 'BANNER'
  | (_) | '_ \ / -_) ' \ (__| / _/ _ \ V  V /
   \___/| .__/ \___|_||_\___|_\__\___/\_/\_/ 
        |_|  WSL2 Ubuntu 一键部署脚本
-              版本：2026.3.28 (最终版)
+              版本：2026.3.28 (加速版)
 BANNER
 echo -e "${RESET}"
 echo -e "${YELLOW}⚠️  版本说明：v2026.3.28 是重大架构升级版本${RESET}"
@@ -98,7 +98,7 @@ else
 fi
 
 # ============================================================================
-# STEP 3：检查 Node.js (≥22) - 处理 nvm 冲突
+# STEP 3：检查 Node.js (≥22) - 加速 nvm 安装
 # ============================================================================
 step "STEP 3 | 检查 Node.js (≥22)"
 
@@ -109,7 +109,6 @@ clean_npmrc_conflict() {
             warn "检测到 .npmrc 中存在与 nvm 冲突的配置"
             info "备份原 .npmrc 到 $HOME/.npmrc.bak"
             cp "$HOME/.npmrc" "$HOME/.npmrc.bak"
-            # 移除冲突配置行
             sed -i '/^prefix=/d' "$HOME/.npmrc" 2>/dev/null || true
             sed -i '/^globalconfig=/d' "$HOME/.npmrc" 2>/dev/null || true
             if [[ ! -s "$HOME/.npmrc" ]]; then
@@ -122,26 +121,19 @@ clean_npmrc_conflict() {
     fi
 }
 
-# 安装 nvm（带镜像源和重试）
+# 快速安装 nvm（直接使用 Gitee 镜像，设置超时）
 install_nvm() {
-    local nvm_install_script="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
     local nvm_mirror="https://gitee.com/mirrors/nvm/raw/master/install.sh"
-    
-    info "正在安装 nvm..."
+    info "正在安装 nvm（使用 Gitee 镜像）..."
     clean_npmrc_conflict
     
-    if curl -fsSL "$nvm_install_script" -o /tmp/nvm_install.sh 2>/dev/null; then
+    # 使用 curl 的超时参数：连接超时 5 秒，最大时间 15 秒
+    if curl -fsSL --connect-timeout 5 --max-time 15 "$nvm_mirror" -o /tmp/nvm_install.sh; then
         bash /tmp/nvm_install.sh
         return 0
+    else
+        error "无法下载 nvm 安装脚本，请检查网络后重试"
     fi
-    warn "GitHub 访问失败，尝试使用 Gitee 镜像..."
-    if curl -fsSL "$nvm_mirror" -o /tmp/nvm_install.sh 2>/dev/null; then
-        bash /tmp/nvm_install.sh
-        return 0
-    fi
-    error "无法下载 nvm 安装脚本，请手动安装 nvm：\n\
-    1. 访问 https://gitee.com/mirrors/nvm\n\
-    2. 或执行：curl -o- https://gitee.com/mirrors/nvm/raw/master/install.sh | bash"
 }
 
 # 加载 nvm
@@ -171,13 +163,16 @@ else
     
     clean_npmrc_conflict
     
-    if [[ ! -d "$HOME/.nvm" ]]; then
+    # 检查 nvm 是否已安装
+    if [[ -d "$HOME/.nvm" ]]; then
+        info "检测到已安装 nvm，直接加载"
+    else
         install_nvm
     fi
     
     load_nvm || error "nvm 加载失败，请检查 $HOME/.nvm 目录"
     
-    # 配置 Node.js 镜像加速
+    # 配置 Node.js 镜像加速（淘宝镜像）
     export NVM_NODEJS_ORG_MIRROR="https://npmmirror.com/mirrors/node"
     
     info "正在安装 Node.js 22（使用国内镜像加速）..."
@@ -191,7 +186,7 @@ else
     nvm use --delete-prefix v22.22.2 --silent 2>/dev/null || nvm use 22 || error "无法切换到 Node.js 22"
     nvm alias default 22
     
-    # 更新 shell 配置
+    # 更新 shell 配置（仅当未配置时）
     for RC in "$HOME/.bashrc" "$HOME/.zshrc"; do
         if [[ -f "$RC" ]]; then
             if ! grep -q 'NVM_DIR' "$RC"; then
@@ -324,7 +319,7 @@ mkdir -p "$OPENCLAW_DIR"
   warn "原配置已备份至 $BAK"
 }
 
-# 构造 models 数组（每个模型 ID 需要转义）
+# 构造 models 数组
 MODELS_JSON="["
 for i in "${!MODEL_IDS[@]}"; do
   M="${MODEL_IDS[$i]}"
@@ -355,10 +350,10 @@ for i in "${!MODEL_IDS[@]}"; do
 done
 ALIAS_MAP+="}"
 
-# 生成随机网关 token（无需转义）
+# 生成随机网关 token
 GATEWAY_TOKEN=$(openssl rand -hex 24)
 
-# 写入配置文件（所有变量都已转义）
+# 写入配置文件
 cat > "$CONFIG_FILE" << JSONEOF
 {
   "models": {
@@ -452,7 +447,7 @@ if ! npx -y @larksuite/openclaw-lark install; then
   fi
 fi
 
-# 验证插件（可能需重启网关后生效）
+# 验证插件
 if command -v openclaw &>/dev/null && openclaw plugins list 2>/dev/null | grep -qi "lark"; then
   success "飞书插件安装完成，已被 OpenClaw 识别"
 else
