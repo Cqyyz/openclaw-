@@ -12,15 +12,15 @@ set -euo pipefail
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 BLUE='\033[0;34m'; CYAN='\033[0;36m'; BOLD='\033[1m'; RESET='\033[0m'
 
-# 版本配置,修改版本更改这里就行
+# 版本配置
 OPENCLAW_VERSION="2026.3.28"
 
 # 通用函数
-info()    { echo -e "<equation>{BLUE}[INFO]</equation>{RESET}  $*"; }
-success() { echo -e "<equation>{GREEN}[✅ OK]</equation>{RESET}  $*"; }
-warn()    { echo -e "<equation>{YELLOW}[⚠️  WARN]</equation>{RESET} $*"; }
-error()   { echo -e "<equation>{RED}[❌ ERR]</equation>{RESET}  $*"; exit 1; }
-step()    { echo -e "\n${BOLD}${CYAN}━━━ <equation>1 ━━━</equation>{RESET}"; }
+info()    { echo -e "${BLUE}[INFO]${RESET}  $*"; }
+success() { echo -e "${GREEN}[✅ OK]${RESET}  $*"; }
+warn()    { echo -e "${YELLOW}[⚠️  WARN]${RESET} $*"; }
+error()   { echo -e "${RED}[❌ ERR]${RESET}  $*"; exit 1; }
+step()    { echo -e "\n${BOLD}${CYAN}━━━ $1 ━━━${RESET}"; }
 
 # JSON 转义函数（处理双引号、反斜杠、控制字符）
 json_escape() {
@@ -30,7 +30,7 @@ json_escape() {
     # 替换双引号为 \"
     s="${s//\"/\\\"}"
     # 替换换行符为 \n（可选，但一般不会出现）
-    s="<equation>{s//</equation>'\n'/\\n}"
+    s="${s//$'\n'/\\n}"
     printf '%s' "$s"
 }
 
@@ -40,8 +40,8 @@ input_box() {
     local var_name="$2"
     local is_secret="${3:-false}"
     echo -e "\n${CYAN}┌─────────────────────────────────────────┐${RESET}"
-    echo -e "<equation>{CYAN}│</equation>{RESET} <equation>{BOLD}</equation>{title}${RESET}"
-    echo -e "<equation>{CYAN}└─────────────────────────────────────────┘</equation>{RESET}"
+    echo -e "${CYAN}│${RESET} ${BOLD}${title}${RESET}"
+    echo -e "${CYAN}└─────────────────────────────────────────┘${RESET}"
     if [[ "$is_secret" == "true" ]]; then
         read -rsp "  ➜ 请输入: " "$var_name"; echo
     else
@@ -64,11 +64,11 @@ cat << 'BANNER'
               版本：2026.3.28 (最终版)
 BANNER
 echo -e "${RESET}"
-echo -e "<equation>{YELLOW}⚠️  版本说明：v2026.3.28 是重大架构升级版本</equation>{RESET}"
-echo -e "<equation>{YELLOW}   - ClawHub 插件市场正式上线</equation>{RESET}"
-echo -e "<equation>{YELLOW}   - Plugin SDK 完全重构 (openclaw/plugin-sdk/*)</equation>{RESET}"
-echo -e "<equation>{YELLOW}   - 环境变量前缀统一为 OPENCLAW_*</equation>{RESET}"
-echo -e "<equation>{YELLOW}   - 工作目录迁移至 ~/.openclaw</equation>{RESET}"
+echo -e "${YELLOW}⚠️  版本说明：v2026.3.28 是重大架构升级版本${RESET}"
+echo -e "${YELLOW}   - ClawHub 插件市场正式上线${RESET}"
+echo -e "${YELLOW}   - Plugin SDK 完全重构 (openclaw/plugin-sdk/*)${RESET}"
+echo -e "${YELLOW}   - 环境变量前缀统一为 OPENCLAW_*${RESET}"
+echo -e "${YELLOW}   - 工作目录迁移至 ~/.openclaw${RESET}"
 echo ""
 
 # ============================================================================
@@ -255,11 +255,11 @@ CUSTOM_API_KEY_ESC=$(json_escape "$CUSTOM_API_KEY")
 
 # 模型 ID
 echo -e "\n${CYAN}┌─────────────────────────────────────────┐${RESET}"
-echo -e "<equation>{CYAN}│</equation>{RESET} <equation>{BOLD}2. 模型 ID</equation>{RESET}"
-echo -e "<equation>{CYAN}│</equation>{RESET} 输入要使用的模型 ID，多个用空格分隔，第一个为默认主模型"
-echo -e "<equation>{CYAN}│</equation>{RESET} <equation>{YELLOW}必须与 API 服务端支持的模型名称完全一致</equation>{RESET}"
-echo -e "<equation>{CYAN}│</equation>{RESET} 常用模型：MiniMax-M2.5  claude-opus-4-6  gpt-5.3-codex"
-echo -e "<equation>{CYAN}└─────────────────────────────────────────┘</equation>{RESET}"
+echo -e "${CYAN}│${RESET} ${BOLD}2. 模型 ID${RESET}"
+echo -e "${CYAN}│${RESET} 输入要使用的模型 ID，多个用空格分隔，第一个为默认主模型"
+echo -e "${CYAN}│${RESET} ${YELLOW}必须与 API 服务端支持的模型名称完全一致${RESET}"
+echo -e "${CYAN}│${RESET} 常用模型：MiniMax-M2.5  claude-opus-4-6  gpt-5.3-codex"
+echo -e "${CYAN}└─────────────────────────────────────────┘${RESET}"
 read -rp "  ➜ 请输入: " MODEL_IDS_INPUT
 [[ -z "$MODEL_IDS_INPUT" ]] && error "至少填写一个模型 ID"
 read -ra MODEL_IDS <<< "$MODEL_IDS_INPUT"
@@ -269,8 +269,8 @@ info "主模型：$PROVIDER_ID/$PRIMARY_MODEL"
 
 # 飞书配置
 echo -e "\n${CYAN}┌─────────────────────────────────────────┐${RESET}"
-echo -e "<equation>{CYAN}│</equation>{RESET} <equation>{BOLD}3. 飞书 Channel 配置</equation>{RESET}"
-echo -e "<equation>{CYAN}└─────────────────────────────────────────┘</equation>{RESET}"
+echo -e "${CYAN}│${RESET} ${BOLD}3. 飞书 Channel 配置${RESET}"
+echo -e "${CYAN}└─────────────────────────────────────────┘${RESET}"
 input_box "飞书机器人 App ID" "FEISHU_APP_ID" false
 [[ -z "$FEISHU_APP_ID" ]] && error "App ID 不能为空"
 FEISHU_APP_ID_ESC=$(json_escape "$FEISHU_APP_ID")
@@ -281,9 +281,9 @@ FEISHU_APP_SECRET_ESC=$(json_escape "$FEISHU_APP_SECRET")
 
 # 连接方式选择
 echo -e "\n${CYAN}┌─────────────────────────────────────────┐${RESET}"
-echo -e "<equation>{CYAN}│</equation>{RESET} <equation>{BOLD}4. 连接方式</equation>{RESET}"
-echo -e "<equation>{CYAN}│</equation>{RESET} <equation>{CYAN}1</equation>{RESET}) websocket（推荐）  <equation>{CYAN}2</equation>{RESET}) longpolling"
-echo -e "<equation>{CYAN}└─────────────────────────────────────────┘</equation>{RESET}"
+echo -e "${CYAN}│${RESET} ${BOLD}4. 连接方式${RESET}"
+echo -e "${CYAN}│${RESET} ${CYAN}1${RESET}) websocket（推荐）  ${CYAN}2${RESET}) longpolling"
+echo -e "${CYAN}└─────────────────────────────────────────┘${RESET}"
 read -rp "  ➜ 选择 [1/2，默认 1]: " CONN_CHOICE
 case "${CONN_CHOICE:-1}" in
   2) CONNECTION_MODE="longpolling" ;;
@@ -307,7 +307,7 @@ fi
 
 command -v openclaw &>/dev/null || error "OpenClaw 安装失败，请检查网络或 npm 权限"
 INSTALLED_VERSION=$(openclaw --version 2>/dev/null || echo "unknown")
-if [[ "<equation>INSTALLED_VERSION" != *"</equation>{OPENCLAW_VERSION}"* ]]; then
+if [[ "$INSTALLED_VERSION" != *"${OPENCLAW_VERSION}"* ]]; then
   warn "安装的版本 ${INSTALLED_VERSION} 与目标版本 ${OPENCLAW_VERSION} 不完全匹配"
 else
   success "OpenClaw：${INSTALLED_VERSION}"
@@ -322,7 +322,7 @@ CONFIG_FILE="$OPENCLAW_DIR/openclaw.json"
 mkdir -p "$OPENCLAW_DIR"
 
 [[ -f "$CONFIG_FILE" ]] && {
-  BAK="<equation>{CONFIG_FILE}.bak.</equation>(date +%Y%m%d%H%M%S)"
+  BAK="${CONFIG_FILE}.bak.$(date +%Y%m%d%H%M%S)"
   cp "$CONFIG_FILE" "$BAK"
   warn "原配置已备份至 $BAK"
 }
@@ -484,30 +484,29 @@ fi
 # 完成
 # ============================================================================
 echo ""
-echo -e "<equation>{GREEN}</equation>{BOLD}"
+echo -e "${GREEN}${BOLD}"
 cat << 'EOF'
 ╔══════════════════════════════════════════╗
-║         🎉 OpenClaw 部署完成！           ║
-║           版本：2026.3.28                 ║
+║         🎉 OpenClaw 部署完成！            ║
+║           版本：2026.3.28               ║
 ╚══════════════════════════════════════════╝
 EOF
 echo -e "${RESET}"
 echo ""
-echo -e "  <equation>{BOLD}📌 v2026.3.28 重要提醒：</equation>{RESET}"
+echo -e "  ${BOLD}📌 v2026.3.28 重要提醒：${RESET}"
 echo -e "     • 插件安装优先使用 ClawHub 市场"
 echo -e "     • Plugin SDK 已变更为 openclaw/plugin-sdk/*"
 echo -e "     • 环境变量前缀统一为 OPENCLAW_*"
 echo -e "     • 工作目录统一为 ~/.openclaw"
 echo -e "     • 若遇到飞书插件加载失败，请参考排障文档"
 echo ""
-echo -e "  <equation>{BOLD}下一步 — 启动 OpenClaw 网关：</equation>{RESET}"
+echo -e "  ${BOLD}下一步 — 启动 OpenClaw 网关：${RESET}"
 echo -e "    openclaw gateway start"
 echo -e "    关闭当前窗口重新打开加载环境变量"
 echo ""
-echo -e "  <equation>{BOLD}管理命令：</equation>{RESET}"
+echo -e "  ${BOLD}管理命令：${RESET}"
 echo -e "    openclaw channels status   # 查看通道状态"
 echo -e "    openclaw logs              # 查看日志"
 echo -e "    openclaw plugins list      # 列出插件"
 echo -e "    openclaw doctor --fix      # 自动修复配置问题"
 echo ""
-
