@@ -226,11 +226,13 @@ if command -v java &>/dev/null; then
         success "Java $JAVA_VER (≥8) 已安装"
     else
         warn "Java $JAVA_VER 低于 8，将升级..."
+        sudo apt update
         sudo apt-get install -y openjdk-17-jre-headless -qq && success "Java  安装完成"
     fi
 else
     warn "Java 未安装，正在安装 openjdk-17-jre-headless..."
-    sudo apt-get install -y openjdk-17-jre-headless && success "Java 安装完成"
+    sudo apt update
+    sudo apt-get install -y openjdk-17-jre-headless  && success "Java 安装完成"
 fi
 
 # ============================================================================
