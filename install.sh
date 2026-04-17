@@ -226,11 +226,11 @@ if command -v java &>/dev/null; then
         success "Java $JAVA_VER (≥8) 已安装"
     else
         warn "Java $JAVA_VER 低于 8，将升级..."
-        sudo apt-get install -y openjdk-11-jre-headless -qq && success "Java 11 安装完成"
+        sudo apt-get install -y openjdk-17-jre-headless -qq && success "Java  安装完成"
     fi
 else
-    warn "Java 未安装，正在安装 openjdk-11-jre-headless..."
-    sudo apt-get install -y openjdk-11-jre-headless -qq && success "Java 安装完成"
+    warn "Java 未安装，正在安装 openjdk-17-jre-headless..."
+    sudo apt-get install -y openjdk-17-jre-headless -qq && success "Java 安装完成"
 fi
 
 # ============================================================================
@@ -332,8 +332,8 @@ for i in "${!MODEL_IDS[@]}"; do
             "reasoning": false,
             "input": ["text"],
             "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0},
-            "contextWindow": 16000,
-            "maxTokens": 4096
+            "contextWindow": 200000,
+            "maxTokens": 60000
           }
 MEOF
 )
