@@ -230,7 +230,7 @@ if command -v java &>/dev/null; then
     fi
 else
     warn "Java 未安装，正在安装 openjdk-17-jre-headless..."
-    sudo apt-get install -y openjdk-17-jre-headless -qq && success "Java 安装完成"
+    sudo apt-get install -y openjdk-17-jre-headless && success "Java 安装完成"
 fi
 
 # ============================================================================
