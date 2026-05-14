@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================
 #  OpenClaw WSL2 Ubuntu 一键部署脚本 (最终加速版)
-#  安装版本：v2026.3.28（如需修复 UI 问题，可升级至 2026.3.31）
+#  安装版本：v2026.4.12
 #  baseUrl 固定：https://api-aigw.corp.hongsong.club/v1
 #  用户只需提供：API Key、Model ID、飞书 AppID/Secret
 # =============================================================
@@ -13,7 +13,7 @@ RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 BLUE='\033[0;34m'; CYAN='\033[0;36m'; BOLD='\033[1m'; RESET='\033[0m'
 
 # 版本配置
-OPENCLAW_VERSION="2026.3.28"
+OPENCLAW_VERSION="2026.4.12"
 
 # 通用函数
 info()    { echo -e "${BLUE}[INFO]${RESET}  $*"; }
@@ -58,10 +58,10 @@ cat << 'BANNER'
  | (_) | '_ \ / -_) ' \ (__| / _/ _ \ V  V /
   \___/| .__/ \___|_||_\___|_\__\___/\_/\_/ 
        |_|  WSL2 Ubuntu 一键部署脚本
-              版本：2026.3.28 (加速版)
+              版本：2026.4.12 (加速版)
 BANNER
 echo -e "${RESET}"
-echo -e "${YELLOW}⚠️  版本说明：v2026.3.28 是重大架构升级版本${RESET}"
+echo -e "${YELLOW}⚠️  版本说明：v2026.4.12 是重大架构升级版本${RESET}"
 echo -e "${YELLOW}   - ClawHub 插件市场正式上线${RESET}"
 echo -e "${YELLOW}   - Plugin SDK 完全重构 (openclaw/plugin-sdk/*)${RESET}"
 echo -e "${YELLOW}   - 环境变量前缀统一为 OPENCLAW_*${RESET}"
@@ -482,12 +482,12 @@ echo -e "${GREEN}${BOLD}"
 cat << 'EOF'
 ╔══════════════════════════════════════════╗
 ║         🎉 OpenClaw 部署完成！           ║
-║           版本：2026.3.28                ║
+║           版本：2026.4.12                ║
 ╚══════════════════════════════════════════╝
 EOF
 echo -e "${RESET}"
 echo ""
-echo -e "  ${BOLD}📌 v2026.3.28 重要提醒：${RESET}"
+echo -e "  ${BOLD}📌 v2026.4.12 重要提醒：${RESET}"
 echo -e "     • 插件安装优先使用 ClawHub 市场"
 echo -e "     • Plugin SDK 已变更为 openclaw/plugin-sdk/*"
 echo -e "     • 环境变量前缀统一为 OPENCLAW_*"
@@ -499,7 +499,7 @@ echo -e "    openclaw gateway start"
 echo ""
 echo -e "  ${BOLD}管理命令：${RESET}"
 echo -e "    openclaw channels status   # 查看通道状态"
-echo -e "    openclaw logs              # 查看日志"
+echo -e "    dashboard              # 列出网关令牌"
 echo -e "    openclaw plugins list      # 列出插件"
 echo -e "    openclaw doctor --fix      # 自动修复配置问题"
 echo ""
